@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Logic
+namespace YourStore.Library.Model
 {
     public class Order
     {
-        internal Customer Customer{ get; set; }
+        public Customer Customer { get; set; }
         public float Timer { get; set; }
         public List<Product> product { get; set; }
-
-
-
-
     }
 }
