@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Logic\YourStore.Library.csproj" />
+    <ProjectReference Include="..\YourStore.Library\YourStore.Library.csproj" />
   </ItemGroup>
 
 </Project>

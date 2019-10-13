@@ -6,10 +6,14 @@ namespace YourStore.Library.Model
 {  /// <summary>
    /// A customer has their first and last name, and their location 
    /// </summary>
-    public class Customer
+    public class Customers
     {
-        private string _fName;
-        private string _lName;
+        private string _fName = null;
+        private string _lName = null;
+        
+        public Stores PreferLocation { get; set; }
+
+        public Products ProferProduct { get; set; }
 
 
         /// <summary>
@@ -18,23 +22,23 @@ namespace YourStore.Library.Model
         /// <param name="f"> first name</param>
         /// <param name="l">last name</param>
         /// <param name="zip"> zip code</param>
-        public Customer(string f, string l, int zip)
+        public Customers(string f, string l, int zip)
         {
-            this.First = f;
-            this.Last = l;
+            this.FirstName = f;
+            this.LastName = l;
             this.Zip = zip;
         }
         /// <summary>
         /// defaut constructor
         /// </summary>
-        public Customer()
+        public Customers()
         {
 
         }
         /// <summary>
         /// The first name of the customer
         /// </summary>
-        public String First
+        public String FirstName
         {
             get => _fName; set
             {
@@ -50,11 +54,11 @@ namespace YourStore.Library.Model
         /// <summary>
         /// The Last name of the customer
         /// </summary>
-        public String Last
+        public String LastName
         {
             get => _lName; set
             {
-                _fName = value;
+                _lName = value;
                 if (!Char.IsDigit(_lName[0]))
                 {
                     Char.ToUpper(_lName[0]);
@@ -64,9 +68,8 @@ namespace YourStore.Library.Model
         }
 
         public int Zip { get; set; }
-        public String PreferLocation { get; set; }
+     
 
-        public List<Product> FavoriteProductList = new List<Product>();
 
 
 

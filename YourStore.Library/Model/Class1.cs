@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Logic
+namespace YourStore.Library
 {
     public class Class1
     {

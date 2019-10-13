@@ -2,6 +2,7 @@
 using YourStore.Library.Repo;
 using YourStore.Library.Model;
 using System.Collections.Generic;
+using System.Data;
 
 namespace YourStore
 {
@@ -37,9 +38,9 @@ namespace YourStore
         Start:
             if (DataAccess.CurrentCustomer != null)
             {
-                Console.WriteLine($"{DataAccess.CurrentCustomer.First} Welcome to YourMarketPlace");
+                Console.WriteLine($"{DataAccess.CurrentCustomer.FirstName} Welcome to YourMarketPlace");
 
-                //Console.WriteLine("Press button 6 to view your history");
+                Console.WriteLine("Press button 6 to view all your order history");
 
             }
             Console.WriteLine("Welcome to YourMarketPlace");
@@ -91,52 +92,12 @@ namespace YourStore
                 }else
                 if (result == 6)
                 {
-
+                    DataAccess.getAllCustomerOrderDetails();
                 }
                 else
                 if (result == 5)
                 {
-                    Console.Clear();
-                    Console.WriteLine("Welcome to Management");
-                  
-                    Console.WriteLine("Press button 1 to view list of customers");
-                    Console.WriteLine("Press button 2 to view store History");
-                    Console.WriteLine("Press button 3 to go Customer Page.");
-
-                    var input2 = Console.ReadLine();
-                    if (int.TryParse(input2, out result))
-                    {
-                        if (result == 1)
-                        {
-                            Console.Clear();
-                            string x=null;
-                            do
-                            {
-                                Console.WriteLine($"first\t\tzip,\t\tprefer location\t\tFavorite Items");
-
-                                DataAccess.ViewAllCustomer();
-                                Console.WriteLine("Please type quit to exit.");
-
-                            } while (x == "quit");
-                        }
-                        if (result == 2)
-                        {
-                            Console.Clear();
-                            string x = null;
-                            do
-                            {
-                                Console.WriteLine("Which store: ");
-                                foreach(Store st in DataAccess.GetAllStore())
-                                {
-                                    Console.Write("Type the store id for the store: "+ st.StoreID+ " or type all for all ");
-                                    x = Console.ReadLine();
-                                }
-                                    DataAccess.StoreOrderHistory(x);
-                                Console.WriteLine("Please type quit to exit.");
-
-                            } while (x == "quit");
-                        }
-                    }
+                    StoreManagmentFun();
 
 
                 }
@@ -157,32 +118,91 @@ namespace YourStore
 
 
         }
+        public static void StoreManagmentFun()
+        {
+        StoreManagement:
+            Console.Clear();
+            Console.WriteLine("Welcome to Management");
+
+            Console.WriteLine("Press button 1 to view list of customers");
+            Console.WriteLine("Press button 2 to view store History");
+            Console.WriteLine("Press button 3 to go Customer Page.");
+
+            var input2 = Console.ReadLine();
+            if (int.TryParse(input2, out result))
+            {
+                if (result == 1)
+                {
+                    Console.Clear();
+                    string x = null;
+                    do
+                    {
+                        Console.WriteLine($"first\t\tzip,\t\tprefer location\t\tFavorite Items");
+
+                        Console.Write(DataAccess.ViewAllCustomer() + "\n");
+                        Console.WriteLine("Please type quit to exit.");
+                        x = Console.ReadLine();
+                    } while (x != "quit");
+                    Console.Clear();
+                    goto StoreManagement;
+                }
+                else
+                if (result == 2)
+                {
+                    Console.Clear();
+                    string x = null;
+                    do
+                    {
+                        Console.WriteLine("Which store: ");
+                        foreach (Stores st in DataAccess.GetAllStore())
+                        {
+                            Console.Write("Type the store id for the store: " + st.StoreID + " or type all for all ");
+                            x = Console.ReadLine();
+                        }
+                        DataAccess.StoreOrderHistory(x);
+                        Console.WriteLine("Please type quit to exit.");
+
+                    } while (x == "quit");
+                    goto StoreManagement;
+
+                }else if (result == 3)
+                {
+                    goto done;
+                }
+                else
+                {
+                    goto StoreManagement;
+                }
+            done:
+                Console.Clear();
+              
+            }
+        }
 
         public static void ListAllProductsByStore()
         {
 
-            List<Store> st = DataAccess.GetAllStore();
-            Customer c = new Customer();
+            List<Stores> st = DataAccess.GetAllStore();
+            Customers c = new Customers();
             c = DataAccess.CurrentCustomer;
             ListofItems:
             Console.WriteLine($" To add to cart for order type: (StoreID+ProductID Quantity#) Ex: D1 100.  type done to complete order" );
             Console.WriteLine($" To Leave this screen type quit");
 
-            foreach (Store s in st)
+            foreach (Stores s in st)
             {
                 Console.WriteLine();
                 Console.WriteLine($" From:{ s.Name}------------------ Store ID:{ s.StoreID}");
-                foreach (Product p in s.ItemInventory.Keys)
+                foreach (Products p in s.ItemInventory.Keys)
                 {
                     Console.WriteLine($"Product ID:{p.ID,-0:G} Name:{p.Name,-30:D}  Price: {p.Cost,-15:c}  Quantity#: {s.ItemInventory[p],-5:G}");
                 }
 
-            }
-            
+            }            
 
             var code = Console.ReadLine();
             string message;
-            Order o;
+            Orders o;
             if(code =="quit")
             {
                 goto done;
