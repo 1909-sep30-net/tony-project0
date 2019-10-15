@@ -14,11 +14,32 @@ namespace YourStore.Library.Repo
    public class DataAccess
     {
         static private List<Model.Customers> _allCustomers = new List<Model.Customers>();
-        static private Model.Orders custOrder = new Model.Orders();
+        static private Model.Orders custOrder;
+        static private List<Model.Stores> _allStores = new List<Model.Stores>();
+        static private List<Model.Orders> _allOrders = new List<Model.Orders>();
+
+
+        //static private Dictionary<Boolean, Customer> CurrentCustomer = new Dictionary<bool, Customer>();
+        static public Model.Customers CurrentCustomer;
+        static private Proj0Context dbContext;
 
 
 
-        
+
+        /// <summary>
+        /// setting up store and products
+        /// </summary>
+        static DataAccess()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<Proj0Context>();
+            optionsBuilder.UseSqlServer(SecretConfiguration.connectionString);
+
+            dbContext = new Proj0Context(optionsBuilder.Options);
+
+            //Mapper.InventoryHelper(dbContext.Inventories.Include("p*"));
+            UpdateObjects();
+
+        }
 
         /// <summary>
         /// This is to validate store code.
@@ -26,9 +47,9 @@ namespace YourStore.Library.Repo
         /// <param name="y"> is the store code</param>
         /// <param name="st"> the store that is going to contain the code</param>
         /// <returns></returns>
-        public static bool ValidateStore(char y, out Model.Stores store)
+        public static bool ValidateStore(string y, out Model.Stores store)
         {
-            double y1 = char.GetNumericValue(y);
+            int y1 = int.Parse(y);
             
             var x = from store1 in _allStores where store1.StoreID == y1 select store1;
 
@@ -51,9 +72,9 @@ namespace YourStore.Library.Repo
         /// <param name="dict"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static bool ValidateProduct(char y, Dictionary<Model.Products, int> dict, out Model.Products p)
+        public static bool ValidateProduct(string y, Dictionary<Model.Products, int> dict, out Model.Products p)
         {
-            var x = dict.Keys.Where(k => k.ID == Char.GetNumericValue(y));
+            var x = dict.Keys.Where(k => k.ID == int.Parse(y));
 
             if (x == null)
             {
@@ -70,10 +91,10 @@ namespace YourStore.Library.Repo
             CurrentCustomer = null;
         }
 
-        public static bool  ChangeLogin(string f, string l)
+        public static bool  ChangeLogin(string f, string l, int id)
         {
             CurrentCustomer = null;
-            CurrentCustomer = _allCustomers.Where(x => x.FirstName == f && x.LastName == l).FirstOrDefault();
+            CurrentCustomer = _allCustomers.Where(x => x.FirstName == f && x.LastName == l && x.Id==id).FirstOrDefault();
             if (CurrentCustomer==null)
             {
                 return false;
@@ -81,24 +102,7 @@ namespace YourStore.Library.Repo
             return true;
         }
 
-        /*  private static bool validateQuan(string y,Product p ,Dictionary<Product, int> dict, out int q)
-          {
-
-              if (int.TryParse(y, out q))
-              {
-                  if (q > dict[p])
-                  {
-                      return false;
-                  }
-
-              }
-              else
-              {
-                  return false;
-
-              }
-              return true;
-          }*/
+       
 
         /// <summary>
         /// Valdating the input string before placing order
@@ -106,25 +110,14 @@ namespace YourStore.Library.Repo
         /// <param name="j"></param>
         /// <param name="applicationMessage"></param>
         /// <returns></returns>
-        static public bool ValidateString(string j, out string applicationMessage, out Model.Stores store, out Model.Products product, out int q)
+        static public bool ValidateString(string j, YourStore.Library.Model.Stores st ,out string applicationMessage, out Model.Products product, out int q)
         {
-
-            if (!(j.Length> 6))
+            Console.WriteLine("dest");
+            string[] ssize = j.Split(null);
+            if ((ssize.Length<3))
             {
-             //  Store store;
-               if(!ValidateStore(j[0], out store))
-               {
-
-                    applicationMessage = "There is no such store code";
-                    product = null;
-                    q = 0;
-                    return false;
-
-                }
-
-
                 // Product product;
-                if (!ValidateProduct(j[1], store.ItemInventory,out product))
+                if (!ValidateProduct(ssize[0],st.ItemInventory,out product))
                 {
                     applicationMessage = "There is no such item in store";
                   //  product = null;
@@ -132,9 +125,9 @@ namespace YourStore.Library.Repo
                     return false;
                 }
                // int q;
-                if (int.TryParse(j.Substring(3), out q))
+                if (int.TryParse(ssize[1], out q))
                 {
-                    if (q > store.ItemInventory[product])
+                    if (q > st.ItemInventory[product])
                     {
                         applicationMessage = ("Your quantity is greater than the inventory");            
                         return false;
@@ -155,71 +148,40 @@ namespace YourStore.Library.Repo
 
 
             }
-            applicationMessage = ("To add an item to your store please type (StoreCode+ProductCode Quantity) ex: j1 199!");
+            applicationMessage = ("To add an item to your store please type (StoreCode + ProductCode Quantity) ex: 5 1 199!");
             product = null;
             q = 0;
-            store = null;
             return false;
         }
 
-        public static string ViewAllCustomer()
+        public static List<Model.Orders> DisplayAllOrders()
         {
-            string s = null;
-            foreach (Model.Customers c in _allCustomers) 
-            {
-                s += $"\n{c.FirstName,20:G}\t\t{c.Zip}\t\t{c.PreferLocation}";
-           //    Console.WriteLine( $"{c.Last}\t\t{c.Zip}\t\t{c.PreferLocation}");    
-            }
-            return s;
+            return _allOrders;
+        }
+
+        public static YourStore.Library.Model.Customers SearchCustomerById(int code)
+        {
+        
+            return _allCustomers.Where(a => a.Id == code).FirstOrDefault();
+        }
+
+
+
+        /// <summary>
+        /// viewing all customers 
+        /// </summary>
+        /// <returns></returns>
+        public static List<YourStore.Library.Model.Customers> ViewAllCustomer()
+        {
+         
+            return _allCustomers;
         }
 
     
 
-        static private List<Model.Stores> _allStores = new List<Model.Stores>();
-
-        //static private Dictionary<Boolean, Customer> CurrentCustomer = new Dictionary<bool, Customer>();
-        static public Model.Customers CurrentCustomer;
-        static private Dictionary<Model.Products, int> GameConsoleList = new Dictionary<Model.Products, int>();
-        static private Dictionary<Model.Products, int> GamesList = new Dictionary<Model.Products, int>();
-        static private Dictionary<Model.Products, int> GameConsoleList2 = new Dictionary<Model.Products, int>();
-        static private Dictionary<Model.Products, int> GamesList2 = new Dictionary<Model.Products, int>();
-        static private Proj0Context dbContext;
 
 
-        /// <summary>
-        /// setting up store and products
-        /// </summary>
-        static DataAccess()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<Proj0Context>();
-            optionsBuilder.UseSqlServer(SecretConfiguration.connectionString);
-
-            dbContext = new Proj0Context(optionsBuilder.Options);
-
-            //Mapper.InventoryHelper(dbContext.Inventories.Include("p*"));
-
-
-
-            foreach (DB.Entities.Stores st in dbContext.Stores.Include(a => a.Inventories).ThenInclude(a => a.Product).Include(o=> o.Orders))
-            {
-                
-                _allStores.Add(Mapper.MapStore(st));
-
-            }
-
-          
-            foreach (DB.Entities.Customers customers in dbContext.Customers)
-            {
-                _allCustomers.Add(Mapper.MapCustomer(customers));
-            }
-
-      
-
-
-
-
-        }
-
+       
         /// <summary>
         /// Persist changes to the data source.
         /// </summary>
@@ -240,6 +202,11 @@ namespace YourStore.Library.Repo
             Model.Customers c = new Model.Customers();
             c.FirstName = f;
             c.LastName = l;
+            if (c.Id == 0)
+            {
+               c.Id= _allCustomers.Count+1;
+            }
+            
             int result;
 
             if (!int.TryParse(zip, out result))
@@ -297,23 +264,26 @@ namespace YourStore.Library.Repo
         /// </summary>
         /// <param name="x">the input string</param>
         /// <param name="applicationMessage"> display message to the user if the order did not go thru</param>
-        public static bool AddToOrder(string x, out string applicationMessage, out Model.Orders curO)
+        public static bool AddToOrder(string x, YourStore.Library.Model.Stores st, out string applicationMessage, out Model.Orders curO)
         {
-            Model.Stores st;
             Model.Products product;
             int q = 0;
             Model.Orders o;
-
-            if (DataAccess.ValidateString(x, out applicationMessage, out st, out product, out q))
+            if (DataAccess.ValidateString(x, st, out applicationMessage, out product, out q))
             {
+
                 st.ItemInventory[product] = st.ItemInventory[product] - q;
                 if (CurrentCustomer == null)
-                    custOrder.Customer = null;
+                    custOrder.Customer = CurrentCustomer;
                 else
                     custOrder.Customer = CurrentCustomer;
+                if (custOrder.Product.ContainsKey(product))
+                {
+                    custOrder.Product[product] = custOrder.Product[product] + q;
+                }
+                else
                 custOrder.Product.Add(product, q);
                 custOrder.Store = st;
-                //Console.WriteLine(product.Name);
                 curO = custOrder;
                 return true;
             }
@@ -322,12 +292,46 @@ namespace YourStore.Library.Repo
                 curO = custOrder;
                 return false;
             }
+
+            
+        }
+        public static void ResetOrder()
+        {
+
+            custOrder = new YourStore.Library.Model.Orders();
+            custOrder.Id = _allOrders.Count;
         }
         public static void FinishOrdering()
         {
+            custOrder.Id += 1;
+
             custOrder.Timer = DateTime.Now;
             Model.Stores s = custOrder.Store;
+            s.UserOrderHistory = new List<Model.Orders>();
+
             s.UserOrderHistory.Add(custOrder);
+            DB.Entities.Orders o = Mapper.MapOrder(custOrder);
+            dbContext.Add(o);
+            dbContext.SaveChanges();
+            //making changes to dbContext inventories
+
+            foreach (YourStore.Library.Model.Products products in custOrder.Product.Keys)
+            {
+                var oldinv = dbContext.Inventories.Where(i => i.ProductId == products.ID && i.StoreId == s.StoreID).FirstOrDefault() ;
+                var newinv = oldinv;
+                newinv.Quantity = s.ItemInventory[products];
+                   dbContext.Entry(oldinv).CurrentValues.SetValues(newinv);
+            }
+            //adding a new order 
+            foreach (YourStore.Library.Model.Products products in custOrder.Product.Keys)
+            {
+              //need to get order id
+                dbContext.Add(Mapper.MapOrderDetails(products, custOrder, s.ItemInventory[products]));
+            }
+            //adding to all orders list
+            _allOrders.Add(custOrder);
+            Console.WriteLine(custOrder.Product.Keys);
+            dbContext.SaveChanges();
         }
         /// <summary>
         /// This prints all the select store order history
@@ -357,24 +361,27 @@ namespace YourStore.Library.Repo
 
         public static String GetOrderDeatails()
         {
-            string y=null;
-            foreach(Model.Products p in custOrder.Product.Keys)
+            if (custOrder != null)
             {
-                y += $"\n{ p.Name, 10:G}\t Quantity{custOrder.Product[p]}";
-            }
+                string y = null;
+                foreach (Model.Products p in custOrder.Product.Keys)
+                {
+                    y += $"\n{ p.Name,10:G}\t Quantity{custOrder.Product[p]}";
+                }
 
-            string s = $"The order for {custOrder.Customer} in {custOrder.Store} at {custOrder.Timer}. Your have { custOrder.Product.Count} item(s) purchased. Your item(s): {y}";
-            return s;
+                string s = $"The order for {custOrder.Customer.FirstName} in {custOrder.Store.Name} at {custOrder.Timer}. Your have { custOrder.Product.Count} item(s) purchased. Your item(s): {y}";
+                return s;
+            }else
+            return null;
         }
 
         public static string getAllCustomerOrderDetails()
         {
             string s = null;
-            string prod = null;
 
            foreach(Model.Stores st in _allStores)
             {
-                ;
+                
                 foreach (Model.Orders o in st.UserOrderHistory.Where(x=> x.Customer == CurrentCustomer))
                 {
                     Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
@@ -389,5 +396,45 @@ namespace YourStore.Library.Repo
             return s;
         }
         
+        public static void UpdateObjects()
+        {
+            _allOrders.Clear();
+            _allStores.Clear();
+            
+
+            foreach (DB.Entities.Stores st in dbContext.Stores.Include(a => a.Inventories).ThenInclude(a => a.Product))
+            {
+
+                _allStores.Add(Mapper.MapStore(st));
+
+            }
+            foreach (DB.Entities.Orders order in dbContext.Orders.Include(b => b.OrderDetail).ThenInclude(z => z.Product).Include(c => c.Customer).Include(f => f.Store))
+            {
+
+                _allOrders.Add(Mapper.MapOrder(order));
+
+            }
+
+            foreach (YourStore.Library.Model.Stores s in _allStores)
+            {
+                foreach (YourStore.Library.Model.Orders o in _allOrders)
+                {
+                    if (o.StoreID == s.StoreID)
+                    {
+                        s.UserOrderHistory.Add(o);
+                    }
+
+                }
+            }
+
+
+
+
+            foreach (DB.Entities.Customers customers in dbContext.Customers)
+            {
+                _allCustomers.Add(Mapper.MapCustomer(customers));
+            }
+        }
+
     }
 }

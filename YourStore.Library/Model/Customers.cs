@@ -10,24 +10,13 @@ namespace YourStore.Library.Model
     {
         private string _fName = null;
         private string _lName = null;
-        
-        public Stores PreferLocation { get; set; }
+        public int Id { get; set; }
+        public Stores PreferLocation { get; set; } = new Stores();
 
-        public Products ProferProduct { get; set; }
+        public Products ProferProduct { get; set; } = new Products();
 
 
-        /// <summary>
-        /// For quick initalization of data
-        /// </summary>
-        /// <param name="f"> first name</param>
-        /// <param name="l">last name</param>
-        /// <param name="zip"> zip code</param>
-        public Customers(string f, string l, int zip)
-        {
-            this.FirstName = f;
-            this.LastName = l;
-            this.Zip = zip;
-        }
+       
         /// <summary>
         /// defaut constructor
         /// </summary>
@@ -70,7 +59,7 @@ namespace YourStore.Library.Model
         public int Zip { get; set; }
      
 
-
+        public List<Orders> Order { get; set; }
 
 
 

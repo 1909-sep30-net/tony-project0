@@ -24,7 +24,7 @@ namespace YourStore.Library.Model
 
         public Dictionary<Products, int> ItemInventory { get; set; } = new Dictionary<Products, int>();
 
-        public List<Orders> UserOrderHistory { get; set; }
+        public List<Orders> UserOrderHistory { get; set; } = new List<Orders>();
 
 
     }
