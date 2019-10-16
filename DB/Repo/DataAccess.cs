@@ -11,23 +11,34 @@ using Stores = DB.Entities.Stores;
 
 namespace YourStore.Library.Repo
 {
-   public class DataAccess
+    /// <summary>
+    /// This class allow us to communicate with database and user interface.
+    /// </summary>
+    public class DataAccess:IDisposable, IRepo
     {
+        /// <summary>
+        /// storing a list of all important objects from the database for later use;
+        /// </summary>
         static private List<Model.Customers> _allCustomers = new List<Model.Customers>();
-        static private Model.Orders custOrder;
         static private List<Model.Stores> _allStores = new List<Model.Stores>();
         static private List<Model.Orders> _allOrders = new List<Model.Orders>();
 
-
-        //static private Dictionary<Boolean, Customer> CurrentCustomer = new Dictionary<bool, Customer>();
+        /// <summary>
+        /// this is used to keep track which is the current customer  and order
+        /// </summary>       
+        static private Model.Orders custOrder;
         static public Model.Customers CurrentCustomer;
-        static private Proj0Context dbContext;
+
+        /// <summary>
+        /// this is used to push/retrieve information to/from database
+        /// </summary>
+        static private readonly Proj0Context dbContext;
 
 
 
 
         /// <summary>
-        /// setting up store and products
+        /// setting up store and products for uses 
         /// </summary>
         static DataAccess()
         {
@@ -36,7 +47,6 @@ namespace YourStore.Library.Repo
 
             dbContext = new Proj0Context(optionsBuilder.Options);
 
-            //Mapper.InventoryHelper(dbContext.Inventories.Include("p*"));
             UpdateObjects();
 
         }
@@ -50,7 +60,7 @@ namespace YourStore.Library.Repo
         public static bool ValidateStore(string y, out Model.Stores store)
         {
             int y1 = int.Parse(y);
-            
+
             var x = from store1 in _allStores where store1.StoreID == y1 select store1;
 
 
@@ -85,24 +95,32 @@ namespace YourStore.Library.Repo
             p = x.First();
             return true;
         }
-
+        /// <summary>
+        /// Removing current customer 
+        /// </summary>
         public static void ClearCurrentCustomer()
         {
             CurrentCustomer = null;
         }
-
-        public static bool  ChangeLogin(string f, string l, int id)
+        /// <summary>
+        /// change login by searching _allCustomer
+        /// </summary>
+        /// <param name="f">first name</param>
+        /// <param name="l">last name</param>
+        /// <param name="id">id </param>
+        /// <returns>true and false</returns>
+        public static bool ChangeLogin(string f, string l, int id)
         {
             CurrentCustomer = null;
-            CurrentCustomer = _allCustomers.Where(x => x.FirstName == f && x.LastName == l && x.Id==id).FirstOrDefault();
-            if (CurrentCustomer==null)
+            CurrentCustomer = _allCustomers.Where(x => x.FirstName == f && x.LastName == l && x.Id == id).FirstOrDefault();
+            if (CurrentCustomer == null)
             {
                 return false;
             }
             return true;
         }
 
-       
+
 
         /// <summary>
         /// Valdating the input string before placing order
@@ -110,26 +128,26 @@ namespace YourStore.Library.Repo
         /// <param name="j"></param>
         /// <param name="applicationMessage"></param>
         /// <returns></returns>
-        static public bool ValidateString(string j, YourStore.Library.Model.Stores st ,out string applicationMessage, out Model.Products product, out int q)
+        static public bool ValidateString(string j, YourStore.Library.Model.Stores st, out string applicationMessage, out Model.Products product, out int q)
         {
             Console.WriteLine("dest");
             string[] ssize = j.Split(null);
-            if ((ssize.Length<3))
+            if ((ssize.Length < 3))
             {
                 // Product product;
-                if (!ValidateProduct(ssize[0],st.ItemInventory,out product))
+                if (!ValidateProduct(ssize[0], st.ItemInventory, out product))
                 {
                     applicationMessage = "There is no such item in store";
-                  //  product = null;
+                    //  product = null;
                     q = 0;
                     return false;
                 }
-               // int q;
+                // int q;
                 if (int.TryParse(ssize[1], out q))
                 {
                     if (q > st.ItemInventory[product])
                     {
-                        applicationMessage = ("Your quantity is greater than the inventory");            
+                        applicationMessage = ("Your quantity is greater than the inventory");
                         return false;
                     }
                 }
@@ -153,15 +171,22 @@ namespace YourStore.Library.Repo
             q = 0;
             return false;
         }
-
+        /// <summary>
+        /// Returning all orders to console for displaying
+        /// </summary>
+        /// <returns></returns>
         public static List<Model.Orders> DisplayAllOrders()
         {
             return _allOrders;
         }
-
+        /// <summary>
+        /// it searches customer by id 
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public static YourStore.Library.Model.Customers SearchCustomerById(int code)
         {
-        
+
             return _allCustomers.Where(a => a.Id == code).FirstOrDefault();
         }
 
@@ -173,21 +198,21 @@ namespace YourStore.Library.Repo
         /// <returns></returns>
         public static List<YourStore.Library.Model.Customers> ViewAllCustomer()
         {
-         
+
             return _allCustomers;
         }
 
-    
 
 
 
-       
+
+
         /// <summary>
         /// Persist changes to the data source.
         /// </summary>
         public void Save()
         {
-//            s_logger.Info("Saving changes to the database");
+            //            s_logger.Info("Saving changes to the database");
             dbContext.SaveChanges();
         }
         /// <summary>
@@ -204,9 +229,9 @@ namespace YourStore.Library.Repo
             c.LastName = l;
             if (c.Id == 0)
             {
-               c.Id= _allCustomers.Count+1;
+                c.Id = _allCustomers.Count + 1;
             }
-            
+
             int result;
 
             if (!int.TryParse(zip, out result))
@@ -214,13 +239,13 @@ namespace YourStore.Library.Repo
                 return false;
             }
             c.Zip = result;
-            _allCustomers.Add(c);
 
             CurrentCustomer = c;
             if (custOrder.Customer != null)
             {
                 custOrder.Customer = c;
             }
+            _allCustomers.Add(c);
 
             dbContext.Add(Mapper.MapCustomer(c));
             dbContext.SaveChanges();
@@ -247,7 +272,10 @@ namespace YourStore.Library.Repo
 
 
         }
-
+        /// <summary>
+        /// return the all of the stores
+        /// </summary>
+        /// <returns></returns>
         public static List<Model.Stores> GetAllStore()
         {
 
@@ -268,7 +296,6 @@ namespace YourStore.Library.Repo
         {
             Model.Products product;
             int q = 0;
-            Model.Orders o;
             if (DataAccess.ValidateString(x, st, out applicationMessage, out product, out q))
             {
 
@@ -282,7 +309,7 @@ namespace YourStore.Library.Repo
                     custOrder.Product[product] = custOrder.Product[product] + q;
                 }
                 else
-                custOrder.Product.Add(product, q);
+                    custOrder.Product.Add(product, q);
                 custOrder.Store = st;
                 curO = custOrder;
                 return true;
@@ -293,14 +320,22 @@ namespace YourStore.Library.Repo
                 return false;
             }
 
-            
+
         }
+        /// <summary>
+        /// everytime an order is created, they have to called this method in console
+        /// </summary>
         public static void ResetOrder()
         {
 
             custOrder = new YourStore.Library.Model.Orders();
             custOrder.Id = _allOrders.Count;
         }
+        /// <summary>
+        /// Finishing order by updating inventories of the product that is purchased
+        /// and order details of the what is ordered to the database
+        /// Also updating the orders in memory. 
+        /// </summary>
         public static void FinishOrdering()
         {
             custOrder.Id += 1;
@@ -317,15 +352,15 @@ namespace YourStore.Library.Repo
 
             foreach (YourStore.Library.Model.Products products in custOrder.Product.Keys)
             {
-                var oldinv = dbContext.Inventories.Where(i => i.ProductId == products.ID && i.StoreId == s.StoreID).FirstOrDefault() ;
+                var oldinv = dbContext.Inventories.Where(i => i.ProductId == products.ID && i.StoreId == s.StoreID).FirstOrDefault();
                 var newinv = oldinv;
                 newinv.Quantity = s.ItemInventory[products];
-                   dbContext.Entry(oldinv).CurrentValues.SetValues(newinv);
+                dbContext.Entry(oldinv).CurrentValues.SetValues(newinv);
             }
-            //adding a new order 
+            //adding a new order details 
             foreach (YourStore.Library.Model.Products products in custOrder.Product.Keys)
             {
-              //need to get order id
+                //need to get order id
                 dbContext.Add(Mapper.MapOrderDetails(products, custOrder, s.ItemInventory[products]));
             }
             //adding to all orders list
@@ -338,26 +373,30 @@ namespace YourStore.Library.Repo
         /// </summary>
         /// <param name="st"></param>
         /// <returns></returns>
-       public static string  StoreOrderHistory(string id)
+        public static string StoreOrderHistory(string id)
         {
-            
+
             int temp = int.Parse(id);
 
-            string c = null;string s = null; ;
-            var st =  GetAllStore().Where(x => x.StoreID == temp).First();
-            foreach(Model.Orders o in st.UserOrderHistory)
+            string c = null; string s = null; ;
+            // var st =  GetAllStore().Where(x =>x.StoreID==temp).First();
+            var orders = _allOrders.Where(a => a.Store.StoreID == temp);
+            foreach (Model.Orders o in orders)
             {
-               c = $"{o.Customer, -14 } purchased:\n";
+                c = $"{o.Customer.FirstName,-14 } purchased:\n";
                 foreach (Model.Products p in o.Product.Keys)
-                    s = $"{ p.Name, -20:G}\t {o.Product[p]: -3:G}\t {p.Cost, -5:C} ( total: {p.Cost* o.Product[p], -5:C})";
+                    s = $"{ p.Name,-20:G}\t {o.Product[p],-3:G}\t {p.Cost,-5:C} ( total: {p.Cost * o.Product[p],-5:C})";
             }
 
             string y = c + s;
             return y;
-            
+
         }
 
-
+        /// <summary>
+        /// Display the order details after finish order is called
+        /// </summary>
+        /// <returns></returns>
 
         public static String GetOrderDeatails()
         {
@@ -371,36 +410,20 @@ namespace YourStore.Library.Repo
 
                 string s = $"The order for {custOrder.Customer.FirstName} in {custOrder.Store.Name} at {custOrder.Timer}. Your have { custOrder.Product.Count} item(s) purchased. Your item(s): {y}";
                 return s;
-            }else
-            return null;
-        }
-
-        public static string getAllCustomerOrderDetails()
-        {
-            string s = null;
-
-           foreach(Model.Stores st in _allStores)
-            {
-                
-                foreach (Model.Orders o in st.UserOrderHistory.Where(x=> x.Customer == CurrentCustomer))
-                {
-                    Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
-                    foreach (Model.Products p in o.Product.Keys)
-                    {
-                        Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
-
-                    }
-                }
             }
-
-            return s;
+            else
+                return null;
         }
-        
+
+        /// <summary>
+        /// This is called in the construtor of DataAccess to get _allOrders  _allStores and _allcustomers
+        /// </summary>
+
         public static void UpdateObjects()
         {
             _allOrders.Clear();
             _allStores.Clear();
-            
+            _allCustomers.Clear();
 
             foreach (DB.Entities.Stores st in dbContext.Stores.Include(a => a.Inventories).ThenInclude(a => a.Product))
             {
@@ -435,6 +458,32 @@ namespace YourStore.Library.Repo
                 _allCustomers.Add(Mapper.MapCustomer(customers));
             }
         }
+        public static List<YourStore.Library.Model.Customers> GetAllCusomter()
+        {
+            return _allCustomers;
+        }
 
+        #region IDisposable Support
+        private bool _disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    dbContext.Dispose();
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
 }

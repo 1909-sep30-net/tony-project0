@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DB\DB.csproj" />
     <ProjectReference Include="..\Logic\YourStore.Library.csproj" />
     <ProjectReference Include="..\YourStore.Library\YourStore.Library.csproj" />
   </ItemGroup>

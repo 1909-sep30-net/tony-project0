@@ -31,11 +31,12 @@ namespace YourStore.Library.Model
         {
             get => _fName; set
             {
-                _fName = value;
-                if (!Char.IsDigit(_fName[0]))
+                if (value.Length == 0)
                 {
-                    Char.ToUpper(_fName[0]);
+                    throw new ArgumentException("Name must not be empty ", nameof(value));
                 }
+                _fName = value;
+
 
             }
 
@@ -47,11 +48,11 @@ namespace YourStore.Library.Model
         {
             get => _lName; set
             {
-                _lName = value;
-                if (!Char.IsDigit(_lName[0]))
+                if (value.Length == 0)
                 {
-                    Char.ToUpper(_lName[0]);
+                    throw new ArgumentException("Name must not be empty ", nameof(value));
                 }
+                _lName = value;
 
             }
         }

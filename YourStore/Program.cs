@@ -4,6 +4,7 @@ using YourStore.Library.Model;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using NLog;
 
 
 namespace YourStore
@@ -14,18 +15,37 @@ namespace YourStore
 
         static int result;
 
-   
+        private static readonly ILogger s_logger = LogManager.GetCurrentClassLogger();
+
 
         static void Main(string[] args)
         {
 
              while (true)
              {
+                try
+                {
+                    DefaultMessage();
 
-                     DefaultMessage();
+                }catch(NullReferenceException ex)
+                {
+                    Console.WriteLine( ex);
 
+                }
+                catch (IndexOutOfRangeException ex)
+                {
+                    Console.WriteLine("There is an a index out of range exception: " + ex);
 
-             }
+                }
+                catch (OverflowException ex)
+                {
+                    Console.WriteLine("There is an a exception: " + ex);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("There is an a exception: " + ex);
+                }
+            }
 
 
 
@@ -89,7 +109,7 @@ namespace YourStore
                     var fName = Console.ReadLine();
                     Console.WriteLine("Please enter your Last name:");
                     var lName = Console.ReadLine();
-                    Console.WriteLine("Please enter your id:");
+                    Console.WriteLine("Please enter the Customer id:");
                     var idString = Console.ReadLine();
                     int x;
                     if(int.TryParse(idString, out x))
@@ -107,7 +127,7 @@ namespace YourStore
                 }else
                 if (result == 6)
                 {
-                    DataAccess.getAllCustomerOrderDetails();
+                   getAllCustomerOrderDetails();
                 }
                 else
                 if (result == 5)
@@ -159,7 +179,6 @@ namespace YourStore
                         Console.WriteLine($"FirstName\tLastName\tZip\tPreferLocation.Name\tPreferProduct.Name");
 
                         List<Customers> cList=DataAccess.ViewAllCustomer();
-                        string s = null;
                         foreach (Customers c in cList)
                         {
                             Console.WriteLine($"{c.FirstName,-10:G}\t\t{c.LastName,-10:G}\t\t{c.Id,-5:G}\t\t{c.Zip,-5:G}\t\t{c.PreferLocation.StoreID ,- 20:G}\t\t{c.ProferProduct.Name,-20:G}");
@@ -180,16 +199,28 @@ namespace YourStore
                 {
                     Console.Clear();
                     string x = null;
+                    var stores = DataAccess.GetAllStore();
                     do
                     {
-                        Console.WriteLine("Which store: ");
-                        foreach (Stores st in DataAccess.GetAllStore())
+                        try
                         {
-                            Console.Write("Type the store id for the store: " + st.StoreID + " or type all for all ");
+                            Console.WriteLine("Which store: ");
+                            foreach (Stores st in stores)
+                            {
+                                Console.WriteLine($"{ st.StoreID}\t{st.Name}");
+                            }
                             x = Console.ReadLine();
+                            Console.WriteLine(DataAccess.StoreOrderHistory(x));
+
                         }
-                        DataAccess.StoreOrderHistory(x);
+                        catch (FormatException ex)
+                        {
+                            s_logger.Info(ex);
+                            Console.WriteLine("Please retry to input correct format");
+                        }
+
                         Console.WriteLine("Please type quit to exit.");
+                        x = Console.ReadLine();
 
                     } while (x == "quit");
                     goto StoreManagement;
@@ -376,7 +407,13 @@ namespace YourStore
                     var lname = Console.ReadLine();
                     Console.WriteLine("Please Tell me your zip");
                     var zip = Console.ReadLine();
-                    DataAccess.CreateCustomer(fname, lname, zip);
+                    try
+                    {
+                        DataAccess.CreateCustomer(fname, lname, zip);
+                    }catch( FormatException ex)
+                    {
+                        Console.WriteLine("You entered information incorrectly: " + ex);
+                    }
 
                 }
                 Console.Clear();
@@ -448,6 +485,28 @@ namespace YourStore
             DataAccess.FinishOrdering();
 
             Console.Clear();
+        }
+
+        public static string getAllCustomerOrderDetails()
+        {
+            string s = null;
+            var x = DataAccess.GetAllStore();
+
+            foreach (Stores st in x)
+            {
+
+                foreach (Orders o in st.UserOrderHistory.Where(x => x.Customer ==DataAccess.CurrentCustomer))
+                {
+                    Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
+                    foreach (Products p in o.Product.Keys)
+                    {
+                        Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
+
+                    }
+                }
+            }
+
+            return s;
         }
 
 
