@@ -96,6 +96,8 @@ namespace YourStore
                 }else
                 if (result == 3)
                 {
+                    s_logger.Info("Listting All Products");
+
                     ListAllProductsByStore();
                 }else
                 if (result == 2)
@@ -128,11 +130,14 @@ namespace YourStore
                 }else
                 if (result == 6)
                 {
-                   getAllCustomerOrderDetails();
+                    s_logger.Info("Get All Cusomter Order Details");
+
+                    getAllCustomerOrderDetails();
                 }
                 else
                 if (result == 5)
                 {
+                    s_logger.Info("Manage Store");
                     StoreManagmentFun();
 
 
@@ -198,6 +203,8 @@ namespace YourStore
                 else
                 if (result == 2)
                 {
+                    s_logger.Info("View Store History");
+
                     Console.Clear();
                     string x = null;
                     var stores = DataAccess.GetAllStore();
@@ -459,9 +466,12 @@ namespace YourStore
                     string code = Console.ReadLine();
 
                     string[] ssize = code.Split(null);
-               
-                       
-                        if (ssize.Length != 2)
+
+                    if (code == "quit")
+                    {
+                        goto done;
+                    }
+                    if (ssize.Length != 2)
                         {
                             goto Restart;
                         }
@@ -482,13 +492,10 @@ namespace YourStore
 
                     string message;
                     Orders o;
-                    if (code == "quit")
-                    {
-                        goto done;
-                    }
-                    else if (!DataAccess.AddToOrder(code, s, out message, out o))
+                 if (!DataAccess.AddToOrder(code, s, out message, out o))
                     {
                         Console.WriteLine(message);
+                        Console.ReadLine();
 
                     }
                     else
@@ -555,15 +562,15 @@ namespace YourStore
         }
         public static void getACustomerOrderDetails(int id)
         {
-            string s = null;
-       
+            DataAccess.UpdateObjects();       
             var z = DataAccess.GetAllOrders();
 
+            Console.WriteLine();
 
 
             foreach (Orders o in z.Where(x => x.Customer.Id == id))
             {
-                Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
+                Console.WriteLine($"{o.Id,-5:G}\t\t{o.Store.Name,-15:G}\t\tat: {o.Timer} \t Purchased:");
                 foreach (Products p in o.Product.Keys)
                 {
                     Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
