@@ -382,6 +382,7 @@ namespace YourStore
                     Console.WriteLine($"FirstName\tLastName\tZip\tPreferLocation.Name\tProferProduct.Name");
 
                     Console.WriteLine($"{c.FirstName,-10:G}\t{c.LastName,-10:G}\t{c.Zip,-5:G}\t{c.PreferLocation.Name,-10:G}\t{c.ProferProduct.Name}");
+                    getACustomerOrderDetails(x);
                     Console.WriteLine("\n\nType anything to exit");
                     Console.ReadLine();
                 }
@@ -516,26 +517,63 @@ namespace YourStore
             Console.Clear();
         }
 
-        public static string getAllCustomerOrderDetails()
+        public static string getAllCustomerOrderDetails(int id=0)
         {
             string s = null;
             var x = DataAccess.GetAllStore();
 
             foreach (Stores st in x)
             {
-
-                foreach (Orders o in st.UserOrderHistory.Where(x => x.Customer ==DataAccess.CurrentCustomer))
+                if (id == 0)
                 {
-                    Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
-                    foreach (Products p in o.Product.Keys)
+                    foreach (Orders o in st.UserOrderHistory.Where(x => x.Customer == DataAccess.CurrentCustomer))
                     {
-                        Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
+                        Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
+                        foreach (Products p in o.Product.Keys)
+                        {
+                            Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
 
+                        }
                     }
+                }
+                else
+                {
+                    foreach (Orders o in st.UserOrderHistory.Where(x => x.Customer.Id == id))
+                    {
+                        Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
+                        foreach (Products p in o.Product.Keys)
+                        {
+                            Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
+
+                        }
+                    }
+
                 }
             }
             s_logger.Info("displaying cusotmer details");
             return s;
+        }
+        public static void getACustomerOrderDetails(int id)
+        {
+            string s = null;
+       
+            var z = DataAccess.GetAllOrders();
+
+
+
+            foreach (Orders o in z.Where(x => x.Customer.Id == id))
+            {
+                Console.WriteLine($"{o.Store.Name}\t\tat: {o.Timer} \t Purchased:");
+                foreach (Products p in o.Product.Keys)
+                {
+                    Console.WriteLine($"{p.Name}\t\t{p.Cost}\t\t{o.Product[p]}");
+
+                }
+            }
+
+
+
+            s_logger.Info("displaying a customer details");
         }
 
 

@@ -36,7 +36,10 @@ namespace YourStore.Library.Repo
 
 
 
-
+        public static List<Model.Orders> GetAllOrders()
+        {
+            return _allOrders;
+        }
         /// <summary>
         /// setting up store and products for uses 
         /// </summary>
