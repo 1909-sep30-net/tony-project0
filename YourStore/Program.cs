@@ -20,29 +20,30 @@ namespace YourStore
 
         static void Main(string[] args)
         {
-
+            ///have exeception when user selects a product to add to a order from a store
              while (true)
              {
                 try
                 {
                     DefaultMessage();
 
-                }catch(NullReferenceException ex)
-                {
-                    Console.WriteLine( ex);
-
                 }
                 catch (IndexOutOfRangeException ex)
                 {
+                    s_logger.Info(ex);
                     Console.WriteLine("There is an a index out of range exception: " + ex);
 
                 }
                 catch (OverflowException ex)
                 {
+                    s_logger.Info(ex);
+
                     Console.WriteLine("There is an a exception: " + ex);
                 }
                 catch (Exception ex)
                 {
+                    s_logger.Info(ex);
+
                     Console.WriteLine("There is an a exception: " + ex);
                 }
             }
@@ -370,10 +371,13 @@ namespace YourStore
                 {
                     Console.WriteLine("There is no customer with the matching id.");
                     Console.ReadLine();
+                    s_logger.Info("There is no matching id for customer");
                     goto RestartID;
                 }
                 else
                 {
+                    s_logger.Info("Customer found");
+
                     Console.WriteLine("There is a customer with the matching id.");
                     Console.WriteLine($"FirstName\tLastName\tZip\tPreferLocation.Name\tProferProduct.Name");
 
@@ -392,6 +396,7 @@ namespace YourStore
 
         public static void ListAllProductsByStore()
         {
+            s_logger.Info("listing products for display");
             DataAccess.ResetOrder();
             DataAccess.UpdateObjects();
             List<Stores> st = DataAccess.GetAllStore();
@@ -438,7 +443,6 @@ namespace YourStore
             while (int.TryParse(storeID, out result))
             {
                 Stores s = st.Where(a => a.StoreID == result).FirstOrDefault();
-   
 
                 if (s!=null)
                 {
@@ -448,8 +452,32 @@ namespace YourStore
                     {
                         Console.WriteLine($"Product ID:{p.ID,-0:G} Name:{p.Name,-30:D}  Price: {p.Cost,-15:c}  Quantity#: {s.ItemInventory[p],-5:G}");
                     }
-                    Console.WriteLine("\n Please Type the product id to add your itme to your order");
+                     Restart:
+
+                    Console.WriteLine("\n Please Type the 1 product id and quantity to add your item to your order. ex: 1 100 means product 1 quantity 100 ");
                     string code = Console.ReadLine();
+
+                    string[] ssize = code.Split(null);
+               
+                       
+                        if (ssize.Length != 2)
+                        {
+                            goto Restart;
+                        }
+
+                    try
+                    {
+                        if(ssize.Length==1)
+                        int.Parse(ssize[0]);
+                        if (ssize.Length ==2)
+                        int.Parse(ssize[1]);
+                    }
+                    catch (FormatException ex)
+                    {
+                        s_logger.Info(ex);
+                        Console.WriteLine("Please type your answer in a integers");
+                        goto Restart;
+                    }
 
                     string message;
                     Orders o;
@@ -483,6 +511,7 @@ namespace YourStore
                 x= Console.ReadLine();
             } while (x != "quit");
             DataAccess.FinishOrdering();
+            s_logger.Info("finishing order and adding it to database");
 
             Console.Clear();
         }
@@ -505,7 +534,7 @@ namespace YourStore
                     }
                 }
             }
-
+            s_logger.Info("displaying cusotmer details");
             return s;
         }
 

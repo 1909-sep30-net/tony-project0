@@ -84,7 +84,7 @@ namespace YourStore.Library.Repo
         /// <returns></returns>
         public static bool ValidateProduct(string y, Dictionary<Model.Products, int> dict, out Model.Products p)
         {
-            var x = dict.Keys.Where(k => k.ID == int.Parse(y));
+            var x = dict.Keys.Where(k => k.ID == int.Parse(y)).FirstOrDefault();
 
             if (x == null)
             {
@@ -92,7 +92,7 @@ namespace YourStore.Library.Repo
                 return false;
 
             }
-            p = x.First();
+            p = x;
             return true;
         }
         /// <summary>
