@@ -2,21 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using YourStore.Library.Model;
+using YourStore.Library;
 using YourStore.Library.Repo;
 
 namespace XUnitTestProject0
 {
     public class ClassCustomerTest
     {
-        private readonly Customers c = new Customers();
+        private readonly Customer c = new Customer();
         /// <summary>
         /// Testing if it set name in the correct format
         /// </summary>
         [Fact]
         public void  NameTestifStoreCorrectly()
         {
-            Customers c = new Customers();
+            Customer c = new Customer();
             string x = "ssss";
 
             c.FirstName = x;

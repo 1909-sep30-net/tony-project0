@@ -1,0 +1,202 @@
+﻿@model YourStoreWeb.Models.ViewOrderHistoryModel
+
+
+
+
+<h4>View Order History Menu</h4>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Index">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" id="id4">
+                <div id="id1">
+                    <label> Please enter the ID of the store</label>
+                    <input asp-for="SearchOrder" inputmode="numeric" class="form-control" />
+                </div>
+                <div id="id2">
+                    <label> Please enter the order detail id of the store</label>
+                    <input asp-for="SearchOrderDetail" inputmode="numeric" class="form-control" />
+                </div>
+                <div id="id3">
+                    <label> Please Enter the UserName of a customer to view all their history </label>
+
+                    <input asp-for="SearchCustomerHistory" class="form-control" />
+                </div>
+
+            </div>
+            <input type="submit" value="Search" class="btn btn-primary" />
+        </form>
+
+
+    </div>
+
+</div>
+
+
+<div id="parent_div_1">
+    <table>
+
+        <thead>
+
+            <tr>
+
+
+                <th>Order ID</th>
+                <th>Store Name</th>
+                <th>Total Cost</th>
+                <th>User Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Order in Model.Order)
+            {
+                <tr>
+
+                    <td>
+                        @Html.DisplayFor(model => Order.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => Order.Store.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => Order.TotalCost)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => Order.Customer.Username)
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+
+
+
+    </table>
+</div>
+<div id="parent_div_2">
+
+    <table>
+
+        <thead>
+            <tr>
+
+
+                <th>Product</th>
+                <th>Quantity</th>
+
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in Model.OrderDetail.Product)
+            {
+                <tr>
+
+                    <td>
+                        @Html.DisplayFor(model => x.Key)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => x.Value)
+                    </td>
+                    <td>
+
+
+                </tr>
+            }
+        </tbody>
+
+
+
+    </table>
+
+
+
+</div>
+
+<div id="parent_div_3">
+
+    <table>
+
+        <thead>
+            <tr>
+
+                <th>Order ID</th>
+                <th>Store Name</th>
+                <th>Total Cost</th>
+                <th>User Name</th>
+
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Order in Model.CusOrdHistory)
+            {
+                <tr>
+
+                    <td>
+                        @Html.DisplayFor(model => Order.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => Order.Store.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => Order.TotalCost)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => Order.Customer.Username)
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+
+
+
+    </table>
+
+
+
+</div>
+
+<style>
+    #parent_div_1, #parent_div_2 {
+        display: flex;
+    }
+
+    #id4 {
+        display: flex;
+        width: 1060px;
+    }
+
+
+    #parent_div_1 {
+        margin: 0 auto;
+        width: 360px;
+        float: left;
+        <style> #div1
+
+    {
+        display: inline-block;
+    }
+
+    #div2 {
+        display: inline-block;
+    }
+
+    table {
+        width: 640px;
+    }
+    /* Make table wider */
+    td, th {
+        border: 1px solid #CCC;
+    }
+    /* Add borders to cells */
+
+
+    
+
+</style>

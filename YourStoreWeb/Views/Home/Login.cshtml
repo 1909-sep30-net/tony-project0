@@ -1,0 +1,47 @@
+﻿@model YourStoreWeb.Models.LoginModel
+
+@{
+    var tempval = TempData.Peek("Logged");
+}
+
+<h1>Login</h1>
+
+<hr />
+
+   @if (tempval == null)
+    {
+        <div>
+            <div class="col-md-4">
+                <form asp-action="Login">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Username" class="control-label"></label>
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Pass" class="control-label"></label>
+                        <input asp-for="Pass" class="form-control" />
+                        <span asp-validation-for="Pass" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+
+    }
+    else
+    {
+
+        <div class="col-md-4">
+            <label>You have logged in as @tempval.ToString();</label>
+        </div>
+
+
+    }

@@ -1,0 +1,47 @@
+﻿@model YourStoreWeb.Models.ViewCustomerModel
+
+
+<h1>Add Customer</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddCustomer">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Customer.FirstName" class="control-label"></label>
+                <input asp-for="Customer.FirstName" class="form-control" />
+                <span asp-validation-for="Customer.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Customer.LastName" class="control-label"></label>
+                <input asp-for="Customer.LastName" class="form-control" />
+                <span asp-validation-for="Customer.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Customer.Zip" class="control-label"></label>
+                <input asp-for="Customer.Zip" class="form-control" />
+                <span asp-validation-for="Customer.Zip" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Customer.Username" class="control-label"></label>
+                <input asp-for="Customer.Username" class="form-control" />
+                <span asp-validation-for="Customer.Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Customer.Pass" class="control-label"></label>
+                <input asp-for="Customer.Pass" class="form-control" />
+                <span asp-validation-for="Customer.Pass" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+</div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+

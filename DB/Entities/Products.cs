@@ -9,15 +9,16 @@ namespace DB.Entities
         {
             Customers = new HashSet<Customers>();
             Inventories = new HashSet<Inventories>();
-            OrderDetail = new HashSet<OrderDetail>();
+            OrderDetails = new HashSet<OrderDetails>();
         }
 
         public int Id { get; set; }
         public string ProudctName { get; set; }
         public decimal Cost { get; set; }
+        public string ImagePath { get; set; }
 
         public virtual ICollection<Customers> Customers { get; set; }
         public virtual ICollection<Inventories> Inventories { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetail { get; set; }
+        public virtual ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }

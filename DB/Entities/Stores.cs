@@ -8,6 +8,7 @@ namespace DB.Entities
         public Stores()
         {
             Customers = new HashSet<Customers>();
+            Employees = new HashSet<Employees>();
             Inventories = new HashSet<Inventories>();
             Orders = new HashSet<Orders>();
         }
@@ -17,6 +18,7 @@ namespace DB.Entities
         public string StoreName { get; set; }
 
         public virtual ICollection<Customers> Customers { get; set; }
+        public virtual ICollection<Employees> Employees { get; set; }
         public virtual ICollection<Inventories> Inventories { get; set; }
         public virtual ICollection<Orders> Orders { get; set; }
     }

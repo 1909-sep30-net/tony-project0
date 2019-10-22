@@ -7,7 +7,7 @@ namespace DB.Entities
     {
         public Orders()
         {
-            OrderDetail = new HashSet<OrderDetail>();
+            OrderDetails = new HashSet<OrderDetails>();
         }
 
         public int Id { get; set; }
@@ -17,6 +17,6 @@ namespace DB.Entities
 
         public virtual Customers Customer { get; set; }
         public virtual Stores Store { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetail { get; set; }
+        public virtual ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }

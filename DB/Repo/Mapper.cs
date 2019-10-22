@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DB.Entities;
 //using DB.Entities;
-using YourStore.Library.Model;
-using Products = YourStore.Library.Model.Products;
-using Stores = YourStore.Library.Model.Stores;
+using YourStore.Library;
+using Products = YourStore.Library.Product;
+using Store = YourStore.Library.Store;
 
 namespace DB.Repo
 {
@@ -14,29 +15,34 @@ namespace DB.Repo
     /// </summary>
     class Mapper
     {
-        public static YourStore.Library.Model.Customers MapCustomer(Entities.Customers c)
+        public static YourStore.Library.Customer MapCustomer(Entities.Customers c)
         {
-            YourStore.Library.Model.Orders ord = new YourStore.Library.Model.Orders();
+            YourStore.Library.Order ord = new YourStore.Library.Order();
    
-            return new YourStore.Library.Model.Customers
+            return new YourStore.Library.Customer
             {
                 FirstName = c.FirstName,
                 LastName = c.LastName,
                 Zip = c.Zip,
                 Id = c.Id,
+                Username = c.UserName,
+                Pass = c.Pass,
             };
         }
 
-        public static Entities.Customers MapCustomer(YourStore.Library.Model.Customers c)
+        public static Entities.Customers MapCustomer(YourStore.Library.Customer c)
         {
             return new Entities.Customers
             {
                 FirstName = c.FirstName,
                 LastName = c.LastName,
                 Zip = c.Zip,
+                UserName = c.Username,
+                Pass = c.Pass,
+                
             };
         }
-        public static Entities.Stores MapStore(YourStore.Library.Model.Stores st)
+        public static Entities.Stores MapStore(YourStore.Library.Store st)
         {
             Entities.Stores stor = new Entities.Stores();
 
@@ -44,7 +50,7 @@ namespace DB.Repo
             stor.Id = st.StoreID;
             stor.Zip = st.Zip;
             
-            foreach (YourStore.Library.Model.Products p in st.ItemInventory.Keys)
+           /* foreach (YourStore.Library.Products p in st.ItemInventory.Keys)
             {
                 
                 Entities.Products products = Mapper.MapProduct(p);
@@ -53,74 +59,55 @@ namespace DB.Repo
                 x.Quantity = st.ItemInventory[p];
                 stor.Inventories.Add(x);
                 
-            }
+            }*/
       
             return stor;
            
         }
 
-        public static YourStore.Library.Model.Stores MapStore(Entities.Stores st)
+        public static YourStore.Library.Store MapStore(Entities.Stores st)
         {
-            YourStore.Library.Model.Stores store = new Stores();
+            YourStore.Library.Store store = new Store();
             store.Name = st.StoreName;
             store.StoreID = st.Id;
             store.Zip = st.Zip;
-            YourStore.Library.Model.Products products = new YourStore.Library.Model.Products();
+            YourStore.Library.Product products = new YourStore.Library.Product();
 
             foreach (Entities.Inventories inven in st.Inventories)
             {
                  products = Mapper.MapProduct(inven.Product);
                 store.ItemInventory.Add(products, inven.Quantity);
             }
-            /*
-            foreach (Entities.Orders ord in st.Orders)
-            {
-                YourStore.Library.Model.Orders o = new Orders();
-                if(ord.Customer!=null)
-                o.Customer = MapCustomer(ord.Customer);
-                foreach( Entities.OrderDetail ode in ord.OrderDetail)
-                {
-                    o.Product.Add(MapProduct(ode.Product), ode.Quantity);
-                }
 
-                store.UserOrderHistory.Add(o);
-            }*/
 
             return store;
         }
-        /// <summary>
-        /// Mapping object oder to relational entities
-        /// </summary>
-        /// <param name="ord"></param>
-        /// <returns></returns>
 
-      /*  public static YourStore.Library.Model.Orders MapOrder(Entities.Orders ord)
+        public static Entities.Orders MapOrder(YourStore.Library.Order or)
         {
-            YourStore.Library.Model.Orders o = new YourStore.Library.Model.Orders();
-            o.Customer = MapCustomer(ord.Customer);
-            o.Store = MapStore(ord.Store);
-            o.Timer =(DateTime) ord.DateTimeOrder;
-            foreach ( Entities.OrderDetail od in ord.OrderDetail)
-            {
-                o.Product.Add(MapProduct(od.Product), od.Quantity);
-
-            }
-            return o;
-
-        }*/
-        public static Entities.Orders MapOrder(YourStore.Library.Model.Orders or)
-        {
-            Entities.Customers c = MapCustomer(or.Customer);
             Entities.Orders o= new Entities.Orders();
-            
-            o.Customer = c;
-            o.StoreId = or.Store.StoreID;
+            if (or.CustomersID == 0)
+            {
+                o.CustomerId = or.Customer.Id;
+            }
+            else
+            {
+                o.CustomerId = or.CustomersID;
+            }
+            if (or.StoreID == 0)
+            {
+                o.StoreId = or.Store.StoreID;
+            }
+            else
+            {
+                o.StoreId = or.StoreID;
+            }
             o.DateTimeOrder = or.Timer;
             return o;
         }
-        public static YourStore.Library.Model.Orders MapOrder(Entities.Orders or)
+        public static YourStore.Library.Order MapOrder(Entities.Orders or)
         {
-            YourStore.Library.Model.Orders o = new YourStore.Library.Model.Orders();
+            YourStore.Library.Order o = new YourStore.Library.Order();
 
 
             o.Id = or.Id;
@@ -129,7 +116,7 @@ namespace DB.Repo
             o.Store = MapStore(or.Store);
             o.Timer = (DateTime)or.DateTimeOrder;
             o.TotalCost = 0;
-            foreach(Entities.OrderDetail od in or.OrderDetail)
+            foreach(Entities.OrderDetails od in or.OrderDetails)
             {
                 o.Product.Add(MapProduct(od.Product), od.Quantity);
                 o.TotalCost += (od.Product.Cost * od.Quantity);
@@ -137,55 +124,115 @@ namespace DB.Repo
             return o;
         }
 
-        public static Entities.OrderDetail MapOrderDetails(YourStore.Library.Model.Products p, YourStore.Library.Model.Orders o, int Quantity)
+        public static Entities.OrderDetails MapOrderDetails(int p,int orderID,int Quantity)
         {
-            Entities.OrderDetail od = new Entities.OrderDetail();
+            Entities.OrderDetails od = new Entities.OrderDetails();
             Entities.Products prod = new Entities.Products();
 
-            prod.Cost = p.Cost;
-            prod.ProudctName = p.Name;
-            od.Product = prod;
-            od.OrderId = o.Id;
+       
+            od.ProductId = p;
+            od.OrderId = orderID;
             od.Quantity = Quantity;
 
             return od;
         }
 
-
-        public static Entities.Inventories MapInven(int q, Entities.Inventories inv)
+        /// <summary>
+        /// Creating a Inventory for a store in db if needed 
+        /// </summary>
+        /// <param name="q"></param>
+        /// <param name="inv"></param>
+        /// <param name="stores"></param>
+        /// <returns></returns>
+        public static Entities.Inventories MapInven(int q, YourStore.Library.Product p, Store stores)//old code
         {
-            
-            
-           inv.Quantity= q;           
 
-            return inv;
+          return  new Entities.Inventories
+            {
+                Quantity = q,
+
+                Product = MapProduct(p),
+                Store = MapStore(stores),
+            };
+              
+
         }
-     
 
-
-        public static YourStore.Library.Model.Products MapProduct(  Entities.Products p )
+        /// <summary>
+        /// My class library does not have an inventory. Therefore i will return the product and the quanity using the out keyword
+        /// </summary>
+        /// <param name="inv"></param>
+        /// <param name="quantities"></param>
+        /// <returns></returns>
+        public static YourStore.Library.Product MapInven(Entities.Inventories inv, out int quantities, out YourStore.Library.Store store )//old code
         {
-            return new YourStore.Library.Model.Products
+
+            quantities = inv.Quantity;
+            store = MapStore((inv.Store));
+
+            return MapProduct(inv.Product);
+        }
+
+
+        public static YourStore.Library.Product MapProduct(  Entities.Products p )
+        {
+            return new YourStore.Library.Product
             {
                 ID = p.Id,
                 Cost = p.Cost,
-                Name = p.ProudctName        
-
+                Name = p.ProudctName,
+                imageLoc = p.ImagePath,
             };
 
 
         }
-        public static Entities.Products MapProduct(YourStore.Library.Model.Products p)
+        public static Entities.Products MapProduct(YourStore.Library.Product p)
         {
             return new Entities.Products
             {
                 Id = p.ID,
                 Cost = p.Cost,
-                ProudctName = p.Name
+                ProudctName = p.Name,
+                ImagePath = p.imageLoc,
+                
             };
 
 
         }
 
+        public static Employee MapEmployee(Employees emp)
+        {
+            Employee.RoleType x = (Employee.RoleType)emp.RoleId;
+            return new Employee
+            {
+                FirstName = emp.FirstName,
+                LastName = emp.LastName,
+                s = MapStore(emp.Store),
+                Username = emp.UserName,
+                Pass = emp.Pass,
+                RoleType1 = x,
+                Id = emp.Id,
+                Zip = emp.Zip,
+            };
+        
+        }
+        public static Entities.Employees MapEmployee(YourStore.Library.Employee emp)
+        {
+            return new Entities.Employees
+            {
+                FirstName = emp.FirstName,
+                LastName = emp.LastName,
+                Store = MapStore(emp.s),
+                UserName = emp.Username,
+                Pass = emp.Pass,
+                RoleId = (int)emp.RoleType1,
+                Zip = emp.Zip,
+                Id = emp.Id,
+            };
+
+
+
+
+        }
     }
 }
