@@ -40,17 +40,41 @@ namespace YourStoreWeb.Controllers
         [HttpPost]
         public IActionResult AddCustomer(ViewCustomerModel m)
         {
-       
-                _logger.LogInformation("Customer Controller: PostAddCustomer");
-            if (Regex.IsMatch(m.Customer.FirstName, @"^[a-zA-Z]+$") || Regex.IsMatch(m.Customer.LastName, @"^[a-zA-Z]+$"))
+            if (!ModelState.IsValid)
             {
-                _repo.AddCustomer(m.Customer);
-                
+                return View();
             }
-            m.Customer = null;
+
+            try
+            {
+                _logger.LogInformation("Customer Controller: PostAddCustomer");
+                if (Regex.IsMatch(m.Customer.FirstName, @"^[a-zA-Z]+$") || Regex.IsMatch(m.Customer.LastName, @"^[a-zA-Z]+$"))
+                {
+                    var x = _repo.GetAllCustomer().Where(x=> x.Username == m.Customer.Username).FirstOrDefault();
+                    if (x != null)
+                    {
+                        m.errorMessage = "Can not add Customer due to error. There is already a user with the username";
+                        return View(m);
+                    }
+                    else
+                    {
+                        TempData["Logged"]= m.Customer.Username;
+                        _repo.AddCustomer(m.Customer);
+                    }
+
+                }
+                if (TempData["NotLogged"].ToString() =="true") 
+                    return RedirectToAction("FinishOrder", "AddToCart");
+                else
+                    return View(m);
+            }catch
+            {
+                m.errorMessage = "Something Went Wrong with adding a customer. Please contact Your Admin.";
+                return View();
+            }
 
 
-            return View(m);
+           
 
         }
         [HttpGet]

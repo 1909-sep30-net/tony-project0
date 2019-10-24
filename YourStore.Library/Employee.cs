@@ -15,18 +15,18 @@ namespace YourStore.Library
             Admin = 2,
             StoreManager = 3
         }
-        [Required][Display(Name ="First Name")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z""'\s-]*$")]
+        [Display(Name ="First Name")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "The Input Must be letters"), Required(AllowEmptyStrings = false)]
         public string FirstName { get; set; }
         public int Id { get; set; }
-        [Required]
         [Display(Name = "Last Name")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z""'\s-]*$")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "The Input Must be letters"), Required(AllowEmptyStrings = false)]
         public string LastName { get; set; }
         [Required]     
-        [RegularExpression(@"^[A-Z]+[a-zA-Z""'\s-]*$")]
-        public Store s { get; set; } = new Store();
+        public Store Store { get; set; } = new Store();
         [Required]
+        [RegularExpression(@"[0-9""'\s-]$", ErrorMessage = "The input must be 0- 9 numbers")]
+
         public int Zip { get; set; }
         [Required]
 

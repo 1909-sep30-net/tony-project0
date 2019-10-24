@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace YourStore.Library
 {
    public class Store
     {
-        public Store()
-        {
-        }
-
-        public Store(string v1, int v2, Dictionary<Product, int> pList, int v)
-        {
-            this.Name = v1;
-            this.Zip = v2;
-            this.ItemInventory = pList;
-            this.StoreID = v;
-        }
-
+        [Display(Name = "Store Name")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "The Input Must be letters"), Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
         public int StoreID { get; set; }
         public int Zip { get; set; }

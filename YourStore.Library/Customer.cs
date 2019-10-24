@@ -9,65 +9,39 @@ namespace YourStore.Library
    /// </summary>
     public class Customer:IUser
     {
-        private string _fName = null;
-        private string _lName = null;
+
         public int Id { get; set; }
-        public Store PreferLocation { get; set; } = new Store();
 
-        public Product ProferProduct { get; set; } = new Product();
-
-
-
-        /// <summary>
-        /// defaut constructor
-        /// </summary>
-        public Customer()
-        {
-
-        }
         /// <summary>
         /// The first name of the customer
         /// </summary>
-        [RegularExpression(@"^[a-zA-Z]+$" ,ErrorMessage = "The Input Musssat be letters"), Required]
+        [Display(Name = "First Name")]
 
-        public String FirstName
-        {
-            get => _fName; set
-            {
-                if (value.Length == 0)
-                {
-                    throw new ArgumentException("Name must not be empty ", nameof(value));
-                }
-                _fName = value;
+        [RegularExpression(@"^[a-zA-Z]+$" ,ErrorMessage = "The Input Must be letters"), Required(AllowEmptyStrings =false)]
 
+        public String FirstName { get; set; }
 
-            }
-
-        }
         /// <summary>
         /// The Last name of the customer
         /// </summary>
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "The Input Musssat be letters"), Required]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "The Input Must be letters"), Required(AllowEmptyStrings = false)]
+        [Display(Name = "Last Name")]
 
-        public String LastName
-        {
-            get => _lName; set
-            {
-                if (value.Length == 0)
-                {
-                    throw new ArgumentException("Name must not be empty ", nameof(value));
-                }
-                _lName = value;
+        public String LastName { get; set; }
+        
 
-            }
-        }
-
-        [RegularExpression(@"[0-9""'\s-]$", ErrorMessage = "The input must be 10 numbers"), Required]
+        [RegularExpression(@"[0-9""'\s-]$", ErrorMessage = "The input must be 0- 9 numbers"), Required]
         public int Zip { get; set; }
 
 
-        public List<Order> Order { get; set; }
+        public List<Order> Order { get; set; } = new List<Order>();
+        [Required]
+        [Display(Name = "User Name")]
         public string Username { get; set; }
+        [Required]
+        [Display(Name = "Password")]
+
+
         public string Pass { get; set; }
     }
 }

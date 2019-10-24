@@ -24,6 +24,7 @@
                         <input asp-for="Pass" class="form-control" />
                         <span asp-validation-for="Pass" class="text-danger"></span>
                     </div>
+                    <span>@Model.errorMessage</span>
                     <div class="form-group">
                         <input type="submit" value="Create" class="btn btn-primary" />
                     </div>

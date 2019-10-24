@@ -20,13 +20,13 @@
             </div>
             <div class="form-group">
                 <label asp-for="Customer.Zip" class="control-label"></label>
-                <input asp-for="Customer.Zip" class="form-control" />
+                <input asp-for="Customer.Zip" class="form-control" min="1" />
                 <span asp-validation-for="Customer.Zip" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Customer.Username" class="control-label"></label>
                 <input asp-for="Customer.Username" class="form-control" />
-                <span asp-validation-for="Customer.Username" class="text-danger"></span>
+                <span asp-validation-for="Customer.Username" class="text-danger">@Model.errorMessage</span>
             </div>
             <div class="form-group">
                 <label asp-for="Customer.Pass" class="control-label"></label>

@@ -25,20 +25,32 @@ namespace YourStoreWeb.Controllers
             _repo = repo;
         }
         //display all products for sale
+        [HttpGet]
         public IActionResult Index()
         {
+            _logger.LogInformation("Home Controller: GetIndex");
+
+            foreach (var xx in TempData.Keys)
+            {
+                if (xx != "Logged")
+                {
+                    TempData.Remove(xx);
+
+                }
+            }
+
 
             ViewStoreProductModel Model = new ViewStoreProductModel();
             IEnumerable<YourStore.Library.Store> st = _repo.GetAllStores();
 
             Model.Store = st.ToList();
-            _logger.LogInformation("Home Controller: GetIndex");
+
 
             return View(Model);
 
 
         }
-        [HttpPost]
+       /* [HttpPost]
         public IActionResult Index(ViewStoreProductModel Model)
         {
 
@@ -49,7 +61,7 @@ namespace YourStoreWeb.Controllers
 
 
             return RedirectToAction("StoreShop", "AddToCart ", Model);
-        }
+        }*/
 
 
 
@@ -61,23 +73,32 @@ namespace YourStoreWeb.Controllers
             return View(x);
         }
         [HttpPost]
-        public IActionResult Login(LoginModel emp)
+        public IActionResult Login(LoginModel model)
         {
-            LoginModel x = new LoginModel();
-            var customers= _repo.GetAllCustomer();
-            var c = customers.Where(a => a.Username == emp.Username && a.Pass == emp.Pass).FirstOrDefault();
-            if(c!=null)
+            try
             {
-                x.logged = true;
-            }
-            else
-            {
-                x.logged = false;
-            }
-            _logger.LogInformation("Home Controller: PostLogin");
+                LoginModel x = new LoginModel();
+                var customers = _repo.GetAllCustomer();
+                var c = customers.Where(a => a.Username == model.Username && a.Pass == model.Pass).FirstOrDefault();
+                if (c != null)
+                {
+                    x.logged = true;
+                }
+                else
+                {
+                    x.logged = false;
+                }
+                _logger.LogInformation("Home Controller: PostLogin");
 
-            TempData["Logged"] = c.Username;
-            return View( x);
+                TempData["Logged"] = c.Username;
+                return View(x);
+            }
+            catch
+            {
+                model.errorMessage = "There is no user name or wrong pass";
+                return View(model);
+            }
+            
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

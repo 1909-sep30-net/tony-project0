@@ -207,7 +207,7 @@ namespace DB.Repo
             {
                 FirstName = emp.FirstName,
                 LastName = emp.LastName,
-                s = MapStore(emp.Store),
+                Store= MapStore(emp.Store),
                 Username = emp.UserName,
                 Pass = emp.Pass,
                 RoleType1 = x,
@@ -222,7 +222,7 @@ namespace DB.Repo
             {
                 FirstName = emp.FirstName,
                 LastName = emp.LastName,
-                Store = MapStore(emp.s),
+                Store = MapStore(emp.Store),
                 UserName = emp.Username,
                 Pass = emp.Pass,
                 RoleId = (int)emp.RoleType1,

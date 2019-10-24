@@ -43,36 +43,36 @@ namespace YourStoreWeb.Controllers
             /// pass to temp data 
             /// 
             Dictionary<Product, int> inven = new Dictionary<Product, int>();
-            try
-            {
-                inven = DeserObjectOrderDetail(TempData.Peek("OrderDetail").ToString());
-                inven.Add(x, Model.Quantity);
-                string y = SeriObject(inven);
-
-                TempData["OrderDetail"] = y;
-            }
-            catch
-            {
-                inven.Add(x, Model.Quantity);
-                string y = SeriObject(inven);
-
-                TempData["OrderDetail"] = y;
-            }
-            
-           
-
-
             // pass Inventory
             try
             {
 
-                Store xst = DeserObjectStore(TempData["store"].ToString());
-                Product item = xst.ItemInventory.Where(f => f.Key.ID == x.ID).FirstOrDefault().Key;
-                TempData["Store1"] = SeriObject(xst);
-                if (xst.ItemInventory[item] > Model.Quantity)
+                Store PrevStore = DeserObjectStore(TempData["store"].ToString());
+                Product item = PrevStore.ItemInventory.Where(f => f.Key.ID == x.ID).FirstOrDefault().Key;
+
+                //validate same product
+                
+
+
+
+                if (PrevStore.ItemInventory[item] > Model.Quantity)
                 {
-                    xst.ItemInventory[item] -= Model.Quantity;
+                    PrevStore.ItemInventory[item] -= Model.Quantity;
+                    TempData["Store"] = SeriObject(PrevStore);
                     Model.ViewOrderModel.Product = inven;
+                    try 
+                    {
+                        inven = DeserObjectOrderDetail(TempData.Peek("OrderDetail").ToString());
+                        inven.Add(x, Model.Quantity);
+                        string y = SeriObject(inven);
+                        TempData["OrderDetail"] = y;
+                    }
+                    catch
+                    {
+                        inven.Add(x, Model.Quantity);
+                        string y = SeriObject(inven);
+                        TempData["OrderDetail"] = y;
+                    }
 
                 }
                 else
@@ -83,35 +83,16 @@ namespace YourStoreWeb.Controllers
                 
                 //end pass   
 
-                Model.Store = xst;
+                Model.Store = PrevStore;
 
                 return View(Model);
             }
             catch
             {
-                Store xst = DeserObjectStore(TempData.Peek("store1").ToString());
-                Product item = xst.ItemInventory.Where(f => f.Key.ID == x.ID).FirstOrDefault().Key;
-                if (xst.ItemInventory[item] > Model.Quantity)
-                {
-                    xst.ItemInventory[item] -= Model.Quantity;
-                    TempData["Store1"] = SeriObject(xst);
-                    //end pass   
-
-                    Model.ViewOrderModel.Product = inven;
-                }
-                else
-                {
-                    Model.errorMessage = "Amount request is greater than inventory.";
-                }
-
-                Model.Store = xst;
-
-
-
-
-
+                Model.errorMessage = "There is something with your purchase. Please wait. ";
                 return View(Model);
             }
+     
 
 
        
@@ -121,50 +102,97 @@ namespace YourStoreWeb.Controllers
         public IActionResult FinishOrder()
         {
             _logger.LogInformation("AddToCart Controller: GetFinishOrder");
-
-
-
-            return View();
-        }
-        [HttpPost]
-        public IActionResult FinishOrder(ViewOrderDetailsModel od)
-        {
-            _logger.LogInformation("AddToCart Controller: PostFinishOrder");
-
-
+            ViewOrderDetailsModel od = new ViewOrderDetailsModel();
             od.Product = DeserObjectOrderDetail(TempData["OrderDetail"].ToString());
             od.Date = DateTime.Now;
-            od.store = DeserObjectStore(TempData["Store1"].ToString());
+            od.store = DeserObjectStore(TempData["Store"].ToString());
 
             Order o = new Order();
 
             o.Product = od.Product;
             o.Store = od.store;
-                //valdiation check
-                var allC = _repo.GetAllCustomer().Where(c => c.Username == TempData.Peek("Logged").ToString()).FirstOrDefault(); ;
-            
-
-            o.Customer = allC;
-
-            _repo.AddOrder(o);
-            var allOrder = _repo.GetAllOrders().Count();
-            foreach( Product x in od.Product.Keys)
+            try
             {
-                _repo.AddOrderDetail(od.Product[x], x.ID, allOrder);
+                var allC = _repo.GetAllCustomer().Where(c => c.Username == TempData.Peek("Logged").ToString()).FirstOrDefault();
+                o.Customer = allC;
 
+                _repo.AddOrder(o);
+                var allOrder = _repo.GetAllOrders().Count();
+                foreach (Product x in od.Product.Keys)
+                {
+                    _repo.AddOrderDetail(od.Product[x], x.ID, allOrder);
+
+                }
+
+                foreach (Product x in od.Product.Keys)
+                {
+                    var item = od.store.ItemInventory.Where(a => a.Key.ID == x.ID).FirstOrDefault();
+
+                    _repo.MakeInventoryChanges(od.store.StoreID, x.ID, item.Value);
+
+
+                }
+                return View(od);
+            }
+            catch
+            {
+                return RedirectToAction("AddCustomer", "Customer");
             }
 
-            foreach (Product x in od.Product.Keys)
+
+        }
+        [HttpPost]
+        public IActionResult FinishOrder(ViewOrderDetailsModel od)
+        {
+            _logger.LogInformation("AddToCart Controller: PostFinishOrder");
+            try
             {
-                var item = od.store.ItemInventory.Where(a => a.Key.ID == x.ID).FirstOrDefault();
 
-                _repo.MakeInventoryChanges(od.store.StoreID, x.ID, item.Value  ); 
+                od.Product = DeserObjectOrderDetail(TempData["OrderDetail"].ToString());
+            }
+            catch
+            {
+                od.errorMessage = "You have not purchase an item.";
+                return View(od.errorMessage);
+            }
+            od.Date = DateTime.Now;
+            od.store = DeserObjectStore(TempData["Store"].ToString());
+
+            Order o = new Order();
+
+            o.Product = od.Product;
+            o.Store = od.store;
+            try
+            {
+                var allC = _repo.GetAllCustomer().Where(c => c.Username == TempData.Peek("Logged").ToString()).FirstOrDefault();
+                o.Customer = allC;
+
+                _repo.AddOrder(o);
+                var allOrder = _repo.GetAllOrders().Count();
+                foreach (Product x in od.Product.Keys)
+                {
+                    _repo.AddOrderDetail(od.Product[x], x.ID, allOrder);
+
+                }
+
+                foreach (Product x in od.Product.Keys)
+                {
+                    var item = od.store.ItemInventory.Where(a => a.Key.ID == x.ID).FirstOrDefault();
+
+                    _repo.MakeInventoryChanges(od.store.StoreID, x.ID, item.Value);
 
 
+                }
+                return View(od);
+            }
+            catch
+            {
+                TempData["NotLogged"] = "true";
+                return RedirectToAction("AddCustomer", "Customer");
             }
 
 
-            return View(od);
+          
         }
 
 
@@ -173,19 +201,11 @@ namespace YourStoreWeb.Controllers
         public IActionResult Index(ViewStoreProductModel model=null, ViewOrderDetailsModel x=null)
         {
             _logger.LogInformation("AddToCart Controller: PostIndex");
-
-            string tempStore = null;
-            if (TempData.Peek("store") != null)
+            if (!ModelState.IsValid) 
             {
-                tempStore = TempData.Peek("store").ToString();
-                Store tempSt = DeserObjectStore(tempStore);
-                var modelOD = new ViewStoreDetailModel();
-                modelOD.Store = tempSt;
-
-                return View(modelOD);
+                return RedirectToAction("Index", "Home");
             }
-            else
-            {
+
                 int StoreID = model.StoreID;
                 Store st = _repo.GetAllStores().Where(s => s.StoreID == StoreID).FirstOrDefault();
                 string storeS = SeriObject(st);
@@ -199,8 +219,15 @@ namespace YourStoreWeb.Controllers
                     return RedirectToAction("Index", "Home");
                 }
                 return View(stor);
+        }
+        [HttpGet]
+        public IActionResult Index()
+        {
+                 _logger.LogInformation("AddToCart Controller: PostIndex");
 
-            }
+                return View();
+
+            
 
         }
         [HttpPost]

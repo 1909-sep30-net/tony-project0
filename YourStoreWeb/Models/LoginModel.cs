@@ -18,5 +18,7 @@ namespace YourStoreWeb.Models
 
         public string Pass { get; set; }
         public bool logged { get; set; } = false;
+        public string errorMessage { get; set; }
+
     }
 }

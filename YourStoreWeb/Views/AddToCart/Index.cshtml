@@ -69,10 +69,10 @@
     <form id="form" asp-action="Cart" asp-controller="AddToCart">
         <div>
             <label> Please enter Product ID</label>
-            <input asp-for="ProductID" class="form-control" />
+            <input asp-for="ProductID" class="form-control" min="1" />
 
             <label> Please enter Quantity</label>
-            <input asp-for="Quantity" class="form-control" />
+            <input asp-for="Quantity" class="form-control" min="1"/>
 
         </div>
 

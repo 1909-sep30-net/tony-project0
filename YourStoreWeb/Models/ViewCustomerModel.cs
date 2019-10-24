@@ -13,6 +13,7 @@ namespace YourStoreWeb.Models
         public Customer Customer { get; set; } = new Customer();
         public string SearchCustomer { get; set; }=null;
         
+        public string errorMessage { get; set; }
     }
 
 }

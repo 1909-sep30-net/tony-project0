@@ -15,7 +15,6 @@ namespace YourStore.Library
         public DateTime Timer { get; set; }
         public int Id { get; set; }
         public Dictionary<Product, int> Product { get; set; } = new Dictionary<Product, int>();
-        public Rule Rules { get; set; } = new Rule();
     }
 }
 

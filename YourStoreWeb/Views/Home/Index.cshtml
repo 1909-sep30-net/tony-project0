@@ -14,7 +14,7 @@
             <label asp-for="StoreID" class="control-label"></label>
             @* input tag helper chooses which form control (e.g. input type="?")
                 based on the C# type of the thing. also sets the input "name" *@
-            <input asp-for="StoreID" class="form-control" />
+            <input asp-for="StoreID" class="form-control" placeholder="" min="1"/>
             <span asp-validation-for="StoreID" class="text-danger"></span>
         </div>
 
